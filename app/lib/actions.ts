@@ -157,8 +157,9 @@ export async function signUp(
                 INSERT INTO users (name, email, password)
                 VALUES (${name}, ${email}, ${passwordsMatch})
             `;
-        return await signIn('credentials', formData);
+        return await authenticate(prevState, formData);
     } catch (error) {
+        console.log('Sign up error', error)
         return 'Something went wrong.';
     }
 }
