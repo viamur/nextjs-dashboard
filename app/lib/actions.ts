@@ -157,16 +157,8 @@ export async function signUp(
                 INSERT INTO users (name, email, password)
                 VALUES (${name}, ${email}, ${passwordsMatch})
             `;
-        await signIn('credentials', formData);
+        return await signIn('credentials', formData);
     } catch (error) {
-        if (error instanceof AuthError) {
-            switch (error.type) {
-                case 'CredentialsSignin':
-                    return 'Invalid credentials.';
-                default:
-                    return 'Something went wrong.';
-            }
-        }
-        throw error;
+        return 'Something went wrong.';
     }
 }
