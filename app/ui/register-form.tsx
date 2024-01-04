@@ -24,7 +24,7 @@ export default function RegisterForm() {
         if (errorMessage?.includes('User created')) {
             router.push('/login');
         }
-    }, [errorMessage]);
+    }, [errorMessage, router]);
 
     return (
         <form action={dispatch} className="space-y-3">
