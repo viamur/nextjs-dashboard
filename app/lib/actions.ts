@@ -6,6 +6,8 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
+import {getUser} from '@/app/lib/data';
+import bcrypt from 'bcrypt';
 
 const FormSchema = z.object({
     id: z.string(),
@@ -102,7 +104,6 @@ export async function updateInvoice(
 }
 
 export async function deleteInvoice(id: string) {
-
     try {
         await sql`DELETE FROM invoices WHERE id = ${id}`;
         revalidatePath('/dashboard/invoices');
@@ -117,6 +118,45 @@ export async function authenticate(
     formData: FormData,
 ) {
     try {
+        await signIn('credentials', formData);
+    } catch (error) {
+        if (error instanceof AuthError) {
+            switch (error.type) {
+                case 'CredentialsSignin':
+                    return 'Invalid credentials.';
+                default:
+                    return 'Something went wrong.';
+            }
+        }
+        throw error;
+    }
+}
+
+export async function signUp(
+    prevState: string | undefined,
+    formData: FormData,
+) {
+    const parsedCredentials = z
+        .object({
+            name: z.string().min(2) ,
+            email: z.string().email(),
+            password: z.string().min(6)
+        })
+        .safeParse({
+            name: formData.get('name'),
+            email: formData.get('email'),
+            password: formData.get('password'),
+        });
+    if (!parsedCredentials.success) return parsedCredentials.error.toString();
+    try {
+        const { name, email, password } = parsedCredentials.data;
+        const user = await getUser(email);
+        if (user) return 'User already exists';
+        const passwordsMatch = await bcrypt.hash(password, 10);
+        await sql`
+                INSERT INTO users (name, email, password)
+                VALUES (${name}, ${email}, ${passwordsMatch})
+            `;
         await signIn('credentials', formData);
     } catch (error) {
         if (error instanceof AuthError) {
