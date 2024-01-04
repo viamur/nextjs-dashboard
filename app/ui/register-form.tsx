@@ -13,9 +13,18 @@ import { useFormState, useFormStatus } from 'react-dom';
 import {signUp} from '@/app/lib/actions';
 import Link from 'next/link';
 import BackToHome from '@/app/ui/BackToHome';
+import {useEffect} from 'react';
+import {useRouter} from 'next/navigation';
 
 export default function RegisterForm() {
     const [errorMessage, dispatch] = useFormState(signUp, undefined);
+    const router = useRouter();
+
+    useEffect(() => {
+        if (errorMessage?.includes('User created')) {
+            router.push('/login');
+        }
+    }, [errorMessage]);
 
     return (
         <form action={dispatch} className="space-y-3">
@@ -92,7 +101,7 @@ export default function RegisterForm() {
                         aria-live="polite"
                         aria-atomic="true"
                     >
-                        {errorMessage && (
+                        {errorMessage?.replace('User created', '') && (
                             <>
                                 <ExclamationCircleIcon className="h-5 w-5 text-red-500" />
                                 <p className="text-sm text-red-500">{errorMessage}</p>
