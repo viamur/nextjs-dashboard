@@ -82,7 +82,7 @@ export default function LoginForm() {
           </div>
         </div>
         <Link href="/register">
-          <span className="text-sm text-blue-500 hover:underline">Don't have an account? Register</span>
+          <span className="text-sm text-blue-500 hover:underline">{`Don't have an account? Register`}</span>
         </Link>
       </div>
     </form>
